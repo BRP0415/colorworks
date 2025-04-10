@@ -296,57 +296,29 @@
             background-color: rgba(0, 0, 0, 0.3); /* fallback */
             color: white;
         }
+        @media (max-width: 768px) {
+            .color-scheme {
+                flex-direction: column;
+                align-items: center;
+            }
 
-/* Mobile Layout */
-@media (max-width: 768px) {
-    .color-scheme {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr); /* 3 items in the top row */
-        gap: 10px; /* Added gap between items */
-    }
-
-    .color-scheme .color-box {
-        width: 100%; /* Each color-box takes full width within its grid cell */
-        margin: 0;
-        border-radius: 8px; /* Smooth corners for each box */
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Light shadow for better focus */
-    }
-
-    /* Adjust the bottom row to have 2 items in a compact view */
-    .color-scheme .color-box:nth-child(4), 
-    .color-scheme .color-box:nth-child(5) {
-        grid-column: span 1; /* These boxes should span a single column */
-    }
-
-    .button, .select-style {
-        width: 100%; /* Full width for buttons and selects */
-        padding: 12px; /* Increased padding for better touch targets */
-    }
-
-    /* Style improvements for select and buttons */
-    .select-style:focus, .button:focus {
-        outline: none;
-        border: 2px solid #007bff;
-        box-shadow: 0 0 8px rgba(0, 123, 255, 0.5); /* Light blue focus effect */
-    }
-}
+            .button, .select-style {
+                width: 100%;
+            }
+        }
 
 
-@media (min-width: 769px) {
-    .color-scheme {
-        display: flex;
-        justify-content: space-between;
-        flex-wrap: wrap;
-    }
+        select.select-style:focus {
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            outline: none;
+        }
 
-    .color-scheme .color-item {
-        width: 20%; /* Adjust the width for desktop */
-    }
+        select.select-style option {
+            background-color: #222;
+            color: white;
+        }
 
-    .button, .select-style {
-        width: auto; /* Set buttons and selects to their default size on desktop */
-    }
-}
 
         @keyframes float {
             0% { transform: translateY(0px); }
