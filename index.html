@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ColorWorks</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        .lock-icon {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+
+        .color-box:hover .lock-icon {
+            opacity: 1;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification.show + .notification.show {
+            transform: translateY(60px);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(-45deg, #4b4b4b, #676767, #1f1f1f, #000000);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 1px;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .color-scheme {
+            display: flex;
+            margin-bottom: 30px;
+            background-image: 
+                linear-gradient(45deg, #000066 25%, transparent 25%),
+                linear-gradient(-45deg, #000066 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #000066 75%),
+                linear-gradient(-45deg, transparent 75%, #000066 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            gap: 15px;
+            backdrop-filter: blur(5px);
+            animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            opacity: 0;
+        }
+
+        .color-scheme.show {
+            opacity: 1;
+        }
+
+        .color-box {
+            width: 120px;
+            height: 120px;
+            margin: 0;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease-in-out;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            opacity: 0; /* Initially hidden */
+            transform: translateY(20px); /* Initially moved up */
+        }
+
+        .color-box.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+
+        .color-box:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .color-code {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .color-box:hover .color-code {
+            opacity: 1;
+        }
+
+        .button {
+            padding: 15px 30px;
+            font-size: 18px;
+            color: white;
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #00c6db, #0095b0);
+        }
+
+        .button:active {
+            transform: translateY(1px);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .select-style {
+            padding: 12px 25px;
+            font-size: 16px;
+            color: white;
+            background: linear-gradient(135deg, rgba(0,0,0,0.2), rgba(0,0,0,0.3));
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            backdrop-filter: blur(5px);
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+            background-size: 12px auto;
+            min-width: 200px;
+        }
+
+        .select-style:hover {
+            background-color: rgba(0,0,0,0.4);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .corner-select {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+
+        .generate-button {
+            padding: 12px 25px;
+            font-size: 16px;
+            color: white;
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .generate-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #00c6db, #0095b0);
+        }
+
+        .generate-button:active {
+            transform: translateY(1px);
+        }
+
+        .scheme-type {
+            margin: -20px 0 30px 0;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            padding: 10px 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease, opacity 0.5s ease-in-out;
+            display: none;
+            opacity: 0; /* Initially hidden */
+            transform: translateY(20px); /* Initially moved up */
+        }
+
+        .scheme-type.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+
+        .credits {
+            margin-top: 30px;
+            font-size: 16px;
+            color: white;
+            font-weight: 500;
+            letter-spacing: 2px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px 0 rgba(0,0,0,0.3);
+            animation: float 3s ease-in-out infinite;
+            transition: all 0.3s ease;
+        }
+
+        .credits:hover {
+            transform: translateY(-5px);
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        select.select-style {
+            background-color: rgba(0, 0, 0, 0.3); /* fallback */
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .color-scheme {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .button, .select-style {
+                width: 100%;
+            }
+        }
+
+
+        select.select-style:focus {
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            outline: none;
+        }
+
+        select.select-style option {
+            background-color: #222;
+            color: white;
+        }
+
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .rainbow-text {
+            font-size: 50px;
+            font-weight: bold;
+            display: inline-block;
+            letter-spacing: 2px;
+        }
+
+        .rainbow-letter {
+            display: inline-block;
+            animation: colorChange 2s infinite;
+        }
+
+        @keyframes colorChange {
+            0% { color: red; }
+            14% { color: orange; }
+            28% { color: yellow; }
+            42% { color: green; }
+            57% { color: blue; }
+            71% { color: indigo; }
+            85% { color: violet; }
+            100% { color: red; }
+        }
+
+    </style>
+</head>
+<body>
+    <h1 class="rainbow-text">ColorWorks</h1>
+    <select id="schemeSelector" class="select-style corner-select">
+        <option value="random">Random</option>
+        <option value="Monochromatic">Monochromatic</option>
+        <option value="Analogous">Analogous</option>
+        <option value="Complementary">Complementary</option>
+        <option value="Triadic">Triadic</option>
+        <option value="Split Complementary">Split Complementary</option>
+    </select>
+    <div id="schemeType" class="scheme-type"></div>
+    <div class="color-scheme" id="colorScheme"></div>
+    <button class="generate-button" onclick="generateColorScheme()">Generate Color Scheme</button>
+    <div class="credits" onclick="showCreditNotification()">Made by BRP0415</div>
+    <div class="notification" id="notification">Copied hex code!</div>
+    <div class="notification" id="creditNotification">:3</div>
+    <div class="notification" id="lockNotification">Color locked!</div>
+    <script>
+        const lockedColors = {};
+
+        function toggleLock(event, index) {
+            event.stopPropagation();
+            const colorBox = event.target.parentElement;
+            const lockIcon = event.target;
+            const notification = document.getElementById('lockNotification');
+            
+            if (colorBox.dataset.locked === 'false') {
+                colorBox.dataset.locked = 'true';
+                lockIcon.textContent = '🔒';
+                lockedColors[index] = colorBox.querySelector('.color-code').textContent;
+                notification.textContent = 'Color locked!';
+            } else {
+                colorBox.dataset.locked = 'false';
+                lockIcon.textContent = '🔓';
+                delete lockedColors[index];
+                notification.textContent = 'Color unlocked!';
+            }
+            
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3500);
+        }
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3500);
+        }
+
+        function showCreditNotification() {
+            const notification = document.getElementById('creditNotification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3500);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification();
+            });
+        }
+
+        function hslToHex(h, s, l) {
+            h = h % 360;
+            s = Math.max(0, Math.min(100, s)) / 100;
+            l = Math.max(0, Math.min(100, l)) / 100;
+
+            let c = (1 - Math.abs(2 * l - 1)) * s;
+            let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+            let m = l - c/2;
+            let r = 0, g = 0, b = 0;
+
+            if (0 <= h && h < 60) {
+                [r, g, b] = [c, x, 0];
+            } else if (60 <= h && h < 120) {
+                [r, g, b] = [x, c, 0];
+            } else if (120 <= h && h < 180) {
+                [r, g, b] = [0, c, x];
+            } else if (180 <= h && h < 240) {
+                [r, g, b] = [0, x, c];
+            } else if (240 <= h && h < 300) {
+                [r, g, b] = [x, 0, c];
+            } else if (300 <= h && h < 360) {
+                [r, g, b] = [c, 0, x];
+            }
+
+            r = Math.round((r + m) * 255).toString(16).padStart(2, '0');
+            g = Math.round((g + m) * 255).toString(16).padStart(2, '0');
+            b = Math.round((b + m) * 255).toString(16).padStart(2, '0');
+
+            return `#${r}${g}${b}`;
+        }
+
+        async function updateSchemeType(type) {
+            const schemeType = document.getElementById('schemeType');
+            schemeType.style.display = 'block';
+            schemeType.style.animation = 'none';
+            void schemeType.offsetWidth; // Force reflow
+            schemeType.style.animation = `popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards`;
+            schemeType.style.animationDelay = '0.15s';
+            schemeType.innerText = `${type} Color Scheme`;
+        }
+
+        async function generateColorScheme() {
+            const colorScheme = document.getElementById('colorScheme');
+            colorScheme.style.display = 'flex';
+            document.getElementById('schemeType').style.display = 'block';
+            // Reset animation
+            colorScheme.classList.remove('show');
+            const schemeType = document.getElementById('schemeType');
+            schemeType.classList.remove('show');
+            void colorScheme.offsetWidth; // Force reflow
+            colorScheme.classList.add('show');
+            const colors = [];
+            const schemeSelector = document.getElementById('schemeSelector');
+            const selectedScheme = schemeSelector.value === 'random' ? 
+                ['Monochromatic', 'Analogous', 'Complementary', 'Triadic', 'Split Complementary'][Math.floor(Math.random() * 5)] : 
+                schemeSelector.value;
+
+            const baseHue = Math.floor(Math.random() * 360);
+            const baseSaturation = 70 + Math.random() * 30;
+            const baseLightness = 50 + Math.random() * 20;
+
+            switch(selectedScheme) {
+                case 'Monochromatic':
+                    for(let i = 0; i < 5; i++) {
+                        colors.push(hslToHex(baseHue, baseSaturation, 20 + (i * 15)));
+                    }
+                    break;
+                case 'Analogous':
+                    for(let i = -2; i <= 2; i++) {
+                        colors.push(hslToHex(baseHue + (i * 30), baseSaturation, baseLightness));
+                    }
+                    break;
+                case 'Complementary':
+                    colors.push(hslToHex(baseHue, baseSaturation, baseLightness));
+                    colors.push(hslToHex(baseHue, baseSaturation - 20, baseLightness));
+                    colors.push(hslToHex(baseHue, baseSaturation + 20, baseLightness));
+                    colors.push(hslToHex((baseHue + 180) % 360, baseSaturation, baseLightness));
+                    colors.push(hslToHex((baseHue + 180) % 360, baseSaturation + 20, baseLightness));
+                    break;
+                case 'Triadic':
+                    colors.push(hslToHex(baseHue, baseSaturation, baseLightness));
+                    colors.push(hslToHex((baseHue + 120) % 360, baseSaturation, baseLightness));
+                    colors.push(hslToHex((baseHue + 240) % 360, baseSaturation, baseLightness));
+                    colors.push(hslToHex(baseHue, baseSaturation - 20, baseLightness));
+                    colors.push(hslToHex(baseHue, baseSaturation + 20, baseLightness));
+                    break;
+                case 'Split Complementary':
+                    colors.push(hslToHex(baseHue, baseSaturation, baseLightness));
+                    colors.push(hslToHex((baseHue + 150) % 360, baseSaturation, baseLightness));
+                    colors.push(hslToHex((baseHue + 210) % 360, baseSaturation, baseLightness));
+                    colors.push(hslToHex(baseHue, baseSaturation - 20, baseLightness));
+                    colors.push(hslToHex(baseHue, baseSaturation + 20, baseLightness));
+                    break;
+            }
+            colorScheme.innerHTML = colors.map((color, index) =>
+                `<div class="color-box" style="background-color: ${color}; animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; animation-delay: ${0.3 + (index * 0.15)}s;" data-locked="false" onclick="copyToClipboard('${color}')">
+                    <div class="lock-icon" onclick="toggleLock(event, ${index})">🔓</div>
+                    <span class="color-code">${color}</span>
+                </div>`).join('');
+            
+            // Update colors array with locked colors before creating elements
+            Object.entries(lockedColors).forEach(([index, color]) => {
+                colors[index] = color;
+            });
+
+            // Create elements with potentially locked colors
+            colorScheme.innerHTML = colors.map((color, index) =>
+                `<div class="color-box" style="background-color: ${color}; animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; animation-delay: ${0.3 + (index * 0.15)}s;" data-locked="${lockedColors[index] ? 'true' : 'false'}" onclick="copyToClipboard('${color}')">
+                    <div class="lock-icon" onclick="toggleLock(event, ${index})">${lockedColors[index] ? '🔒' : '🔓'}</div>
+                    <span class="color-code">${color}</span>
+                </div>`).join('');
+            await updateSchemeType(selectedScheme);
+
+        }
+
+        const textElement = document.querySelector('.rainbow-text');
+        const text = textElement.textContent;
+
+        textElement.innerHTML = ''; // Clear the existing content
+
+        // Split the text into individual letters and wrap each letter in a span with the 'rainbow-letter' class
+        text.split('').forEach((letter, index) => {
+            const span = document.createElement('span');
+            span.classList.add('rainbow-letter');
+            span.style.animationDelay = `${index * 0.1}s`; // Stagger the animation for each letter
+            span.textContent = letter;
+            textElement.appendChild(span);
+        });
+
+    </script>
+</body>
+</html>
